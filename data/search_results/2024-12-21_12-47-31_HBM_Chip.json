@@ -1,6 +1,6 @@
 {
   "keyword": "HBM Chip",
-  "date": "2024-12-21",
+  "date": "2024-12-21_12-47-31",
   "results": [
     {
       "title": "高頻寬記憶體- 維基百科，自由的百科全書",
@@ -15,12 +15,12 @@
       "url": "https://blog.csdn.net/limanjihe/article/details/105957365"
     },
     {
-      "title": "High-bandwidth memory",
-      "url": "https://www.micron.com/products/memory/hbm"
-    },
-    {
       "title": "High-Bandwidth Memory (HBM)",
       "url": "https://semiengineering.com/knowledge_centers/memory/volatile-memory/dynamic-random-access-memory/high-bandwidth-memory/"
+    },
+    {
+      "title": "High-bandwidth memory",
+      "url": "https://www.micron.com/products/memory/hbm"
     }
   ]
 }
