@@ -2,6 +2,7 @@ import json
 import logging
 from spider import GoogleSpider
 
+
 class Runner:
     def __init__(self, config_path='config.json'):
         self.config = self._load_config(config_path)
@@ -13,20 +14,20 @@ class Runner:
 
     def setup_logging(self):
         logging.basicConfig(
-            level=logging.INFO,
-            format='%(asctime)s - %(levelname)s - %(message)s'
+            level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s'
         )
         self.logger = logging.getLogger(__name__)
 
     def run(self):
-        self.logger.info("Starting search process...")
+        self.logger.info('Starting search process...')
         try:
             spider = GoogleSpider()
             spider.run()
-            self.logger.info("Search process completed successfully")
+            self.logger.info('Search process completed successfully')
         except Exception as e:
-            self.logger.error(f"Error during search process: {str(e)}")
+            self.logger.error(f'Error during search process: {str(e)}')
+
 
 if __name__ == '__main__':
     runner = Runner()
-    runner.run() 
+    runner.run()

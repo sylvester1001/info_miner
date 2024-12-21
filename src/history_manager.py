@@ -3,6 +3,7 @@ import os
 import logging
 from datetime import datetime
 
+
 class HistoryManager:
     def __init__(self, history_file='data/history.json'):
         self.history_file = history_file
@@ -31,7 +32,7 @@ class HistoryManager:
             with open(self.history_file, 'w', encoding='utf-8') as f:
                 json.dump(self.history, f, ensure_ascii=False, indent=2)
         except Exception as e:
-            self.logger.error(f"Error saving history: {str(e)}")
+            self.logger.error(f'Error saving history: {str(e)}')
 
     def is_url_seen(self, keyword, url):
         """检查URL是否已经在历史记录中"""
@@ -43,7 +44,7 @@ class HistoryManager:
         """添加新的搜索结果到历史记录"""
         if keyword not in self.history:
             self.history[keyword] = {'urls': []}
-        
+
         if result['url'] not in self.history[keyword]['urls']:
             self.history[keyword]['urls'].append(result['url'])
             self._save_history()
@@ -62,4 +63,4 @@ class HistoryManager:
                 del self.history[keyword]
         else:
             self.history = {}
-        self._save_history() 
+        self._save_history()
