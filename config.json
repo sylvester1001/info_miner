@@ -1,0 +1,12 @@
+{
+    "keywords": ["HBM Chip", "HBM 芯片", "DRAM", "Monster Hunter Wild","酱油", "可口可乐"],
+    "search_settings": {
+        "results_per_keyword": 5,
+        "search_engine": "google",
+        "schedule_time": "00:00"
+    },
+    "output_settings": {
+        "output_dir": "data/search_results",
+        "file_format": "json"
+    }
+} 
