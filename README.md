@@ -1,6 +1,6 @@
 # Info-Spider
 
-一个自动化的信息采集工具，用于收集特定关键词的Google搜索结果。
+一个自动化的信息采集工具，用于收集特定关键词的 Google 搜索结果。
 
 ## 功能特点
 
@@ -18,6 +18,7 @@
 - **ChromeDriver**: Selenium的WebDriver，用于控制Chrome浏览器
 - **logging**: 用于日志记录
 - **JSON**: 用于配置文件和数据存储
+- 后续会添加 csv 和 excel 的存储格式以方便数据分析
 
 ## 项目结构
 
