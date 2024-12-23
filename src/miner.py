@@ -15,7 +15,7 @@ import time
 from history_manager import HistoryManager
 
 
-class GoogleSpider:
+class InfoMiner:
     def __init__(self, config_path='config.json'):
         self.config = self._load_config(config_path)
         self.setup_logging()
@@ -36,33 +36,60 @@ class GoogleSpider:
 
     def setup_driver(self):
         chrome_options = webdriver.ChromeOptions()
+        # 基本设置
         chrome_options.add_argument('--headless')
         chrome_options.add_argument('--no-sandbox')
         chrome_options.add_argument('--disable-dev-shm-usage')
+        
+        # 禁用 GPU 相关功能
         chrome_options.add_argument('--disable-gpu')
-        chrome_options.add_argument('--window-size=1920,1080')
-        chrome_options.add_argument('--remote-debugging-port=9222')
-        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
+        chrome_options.add_argument('--disable-software-rasterizer')
+        chrome_options.add_argument('--disable-gpu-sandbox')
+        chrome_options.add_argument('--disable-gpu-compositing')
+        chrome_options.add_argument('--disable-gpu-program-cache')
+        chrome_options.add_argument('--disable-gpu-shader-disk-cache')
+        chrome_options.add_argument('--disable-gpu-watchdog')
+        chrome_options.add_argument('--disable-3d-apis')
+        
+        # 禁用缓存
+        chrome_options.add_argument('--disable-application-cache')
+        chrome_options.add_argument('--disable-cache')
+        chrome_options.add_argument('--disable-offline-load-stale-cache')
+        chrome_options.add_argument('--disk-cache-size=0')
+        chrome_options.add_argument('--media-cache-size=0')
+        
+        # 其他优化设置
         chrome_options.add_argument('--disable-extensions')
         chrome_options.add_argument('--disable-infobars')
+        chrome_options.add_argument('--disable-notifications')
+        chrome_options.add_argument('--disable-popup-blocking')
+        chrome_options.add_argument('--disable-save-password-bubble')
+        chrome_options.add_argument('--disable-translate')
+        chrome_options.add_argument('--disable-web-security')
+        chrome_options.add_argument('--disable-logging')
+        chrome_options.add_argument('--log-level=3')
+        chrome_options.add_argument('--silent')
+        chrome_options.add_argument('--window-size=1920,1080')
         chrome_options.add_argument('--start-maximized')
+        chrome_options.add_argument('--disable-blink-features=AutomationControlled')
         chrome_options.add_argument(
-            '--user-agent=Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            '--user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
         )
 
-        # 使用本地Chrome浏览器
-        if platform.system() == 'Darwin' and platform.machine() == 'arm64':
-            chrome_options.binary_location = (
-                "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
-            )
+        # 平台特定设置
+        system = platform.system()
+        if system == 'Darwin' and platform.machine() == 'arm64':
+            chrome_options.binary_location = "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+        elif system == 'Windows':
+            chrome_options.add_argument('--disable-software-rasterizer')
 
         try:
             self.driver = webdriver.Chrome(options=chrome_options)
             self.driver.set_page_load_timeout(30)
             self.driver.implicitly_wait(10)
-            self.logger.info('Chrome驱动初始化成功')
+            self.logger.info('Chrome driver initialized successfully')
         except Exception as e:
-            self.logger.error(f'Chrome驱动初始化失败: {str(e)}')
+            self.logger.error(f'Chrome driver initialization failed: {str(e)}')
             raise
 
     def search(self, keyword):
@@ -237,5 +264,5 @@ class GoogleSpider:
 
 
 if __name__ == '__main__':
-    spider = GoogleSpider()
-    spider.run()
+    miner = InfoMiner()
+    miner.run()
