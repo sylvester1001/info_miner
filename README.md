@@ -22,7 +22,7 @@ A web information mining tool helps to gather and analyze search results from Go
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/yourusername/info-miner.git
+git clone https://github.com/sylvester1001/info-miner.git
 cd info-miner
 ```
 
@@ -121,7 +121,7 @@ Results are saved in the `data` directory in both JSON and CSV formats. Each fil
 
 1. 克隆仓库：
 ```bash
-git clone https://github.com/yourusername/info-miner.git
+git clone https://github.com/sylvester1001/info-miner.git
 cd info-miner
 ```
 
