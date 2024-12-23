@@ -1,6 +1,6 @@
 # Info-Miner
 
-A powerful web information mining tool that helps you gather and analyze search results from Google.
+A web information mining tool helps to gather and analyze search results from Google.
 
 ## Features
 
@@ -8,8 +8,9 @@ A powerful web information mining tool that helps you gather and analyze search 
 - Headless browser operation
 - Cross-platform support (Windows & macOS)
 - Search result deduplication
-- JSON output format
+- JSON and CSV output formats
 - History tracking
+- Configurable site filtering (translations, encyclopedias, dictionaries)
 
 ## Requirements
 
@@ -41,6 +42,7 @@ pip install -r requirements.txt
 
 ## Configuration
 
+### Search Settings
 Edit `config.json` to customize your search settings:
 
 ```json
@@ -55,6 +57,31 @@ Edit `config.json` to customize your search settings:
 }
 ```
 
+### Excluded Sites
+Edit `excluded_sites.json` to customize which websites to exclude from search results:
+
+```json
+{
+    "translation_sites": [
+        "translate.google.com",
+        "translate.bing.com"
+    ],
+    "encyclopedia_sites": [
+        "wikipedia.org",
+        "baike.baidu.com"
+    ],
+    "dictionary_sites": [
+        "dictionary.cambridge.org",
+        "dictionary.com"
+    ],
+    "other_sites": [
+        "webcache.googleusercontent.com"
+    ]
+}
+```
+
+You can add or remove domains in each category to customize which sites should be excluded from the search results.
+
 ## Usage
 
 ```bash
@@ -63,7 +90,10 @@ python src/miner.py
 
 ## Output
 
-Results are saved in the `data` directory in JSON format with timestamp and keyword in the filename.
+Results are saved in the `data` directory in both JSON and CSV formats. Each file contains:
+- Timestamp
+- Search keyword
+- Search results (title and URL)
 
 ---
 
@@ -77,8 +107,9 @@ Results are saved in the `data` directory in JSON format with timestamp and keyw
 - 无界面浏览器操作
 - 跨平台支持（Windows和macOS）
 - 搜索结果去重
-- JSON输出格式
+- JSON和CSV输出格式
 - 历史记录追踪
+- 可配置网站过滤（翻译、百科、词典等）
 
 ## 系统要求
 
@@ -110,6 +141,7 @@ pip install -r requirements.txt
 
 ## 配置说明
 
+### 搜索设置
 编辑 `config.json` 来自定义搜索设置：
 
 ```json
@@ -124,6 +156,31 @@ pip install -r requirements.txt
 }
 ```
 
+### 排除网站设置
+编辑 `excluded_sites.json` 来自定义需要排除的网站：
+
+```json
+{
+    "translation_sites": [
+        "translate.google.com",
+        "translate.bing.com"
+    ],
+    "encyclopedia_sites": [
+        "wikipedia.org",
+        "baike.baidu.com"
+    ],
+    "dictionary_sites": [
+        "dictionary.cambridge.org",
+        "dictionary.com"
+    ],
+    "other_sites": [
+        "webcache.googleusercontent.com"
+    ]
+}
+```
+
+您可以在各个类别中添加或删除域名，以自定义需要排除的网站。
+
 ## 使用方法
 
 ```bash
@@ -132,4 +189,7 @@ python src/miner.py
 
 ## 输出结果
 
-结果以JSON格式保存在 `data` 目录中，文件名包含时间戳和关键词。
+结果以JSON和CSV两种格式保存在 `data` 目录中，每个文件包含：
+- 时间戳
+- 搜索关键词
+- 搜索结果（标题和URL）

@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import csv
 from datetime import datetime
 from selenium import webdriver
 from selenium.webdriver.common.by import By
@@ -16,8 +17,9 @@ from history_manager import HistoryManager
 
 
 class InfoMiner:
-    def __init__(self, config_path='config.json'):
+    def __init__(self, config_path='config.json', excluded_sites_path='excluded_sites.json'):
         self.config = self._load_config(config_path)
+        self.excluded_sites = self._load_excluded_sites(excluded_sites_path)
         self.setup_logging()
         self.setup_driver()
         self.history_manager = HistoryManager()
@@ -25,6 +27,20 @@ class InfoMiner:
     def _load_config(self, config_path):
         with open(config_path, 'r', encoding='utf-8') as f:
             return json.load(f)
+
+    def _load_excluded_sites(self, excluded_sites_path):
+        try:
+            with open(excluded_sites_path, 'r', encoding='utf-8') as f:
+                excluded_sites = json.load(f)
+                # Flatten all categories into a single list
+                return [
+                    domain
+                    for category in excluded_sites.values()
+                    for domain in category
+                ]
+        except Exception as e:
+            self.logger.error(f'Error loading excluded sites: {str(e)}')
+            return []
 
     def setup_logging(self):
         logging.basicConfig(
@@ -94,53 +110,53 @@ class InfoMiner:
 
     def search(self, keyword):
         try:
-            self.logger.info(f'开始搜索关键词: {keyword}')
+            self.logger.info(f'Starting search for keyword: {keyword}')
             all_results = []
             page = 0
             required_results = self.config['search_settings']['results_per_keyword']
 
-            while len(all_results) < required_results and page < 3:  # 最多查找3页
-                self.logger.info(f'正在搜索第 {page + 1} 页')
+            while len(all_results) < required_results and page < 3:  # Max 3 pages
+                self.logger.info(f'Searching page {page + 1}')
                 if page > 0:
                     try:
-                        self.logger.info('尝试点击下一页按钮')
+                        self.logger.info('Attempting to click next page button')
                         next_button = self.driver.find_element(By.ID, 'pnnext')
                         next_button.click()
                         time.sleep(3)
                     except Exception as e:
-                        self.logger.info(f'没有更多页面: {str(e)}')
+                        self.logger.info(f'No more pages available: {str(e)}')
                         break
                 else:
-                    # 第一页的搜索逻辑
-                    self.logger.info('访问 Google 搜索页面')
+                    # First page search logic
+                    self.logger.info('Accessing Google search page')
                     self.driver.get('https://www.google.com')
-                    time.sleep(2)  # 等待页面加载
+                    time.sleep(2)  # Wait for page load
 
                     try:
-                        self.logger.info('等待搜索框出现')
+                        self.logger.info('Waiting for search box')
                         search_box = WebDriverWait(self.driver, 20).until(
                             EC.presence_of_element_located((By.NAME, 'q'))
                         )
                         search_box.clear()
                         search_box.send_keys(keyword)
-                        self.logger.info('输入搜索关键词并提交')
+                        self.logger.info('Entering search keyword and submitting')
                         search_box.send_keys(Keys.RETURN)
 
-                        # 等待搜索结果加载
-                        self.logger.info('等待搜索结果加载')
+                        # Wait for search results
+                        self.logger.info('Waiting for search results to load')
                         WebDriverWait(self.driver, 20).until(
                             EC.presence_of_element_located((By.ID, 'search'))
                         )
-                        time.sleep(5)  # 增加等待时间，确保结果完全加载
+                        time.sleep(5)  # Additional wait to ensure results are loaded
                     except TimeoutException as e:
-                        self.logger.error(f'等待超时: {str(e)}')
+                        self.logger.error(f'Timeout waiting for results: {str(e)}')
                         return []
 
-                    self.logger.info('开始提取搜索结果')
-                # 使用更精确的选择器来查找搜索结果
+                    self.logger.info('Starting to extract search results')
+                # Use precise selectors for search results
                 selectors = [
-                    '#search .g div.yuRUbf',  # 主要搜索结果
-                    '#rso .g div.yuRUbf',  # 备用搜索结果
+                    '#search .g div.yuRUbf',  # Main search results
+                    '#rso .g div.yuRUbf',     # Alternative search results
                 ]
 
                 page_results = []
@@ -151,7 +167,7 @@ class InfoMiner:
                     try:
                         elements = self.driver.find_elements(By.CSS_SELECTOR, selector)
                         self.logger.info(
-                            f'使用选择器 {selector} 找到 {len(elements)} 个结果'
+                            f'Found {len(elements)} results using selector {selector}'
                         )
 
                         for element in elements:
@@ -159,7 +175,6 @@ class InfoMiner:
                                 break
 
                             try:
-                                # 直接从yuRUbf div中获取标题和链接
                                 title_element = element.find_element(
                                     By.CSS_SELECTOR, 'h3'
                                 )
@@ -177,57 +192,51 @@ class InfoMiner:
                                 ):
                                     if (
                                         url.startswith('http')
-                                        and not url.startswith(
-                                            'https://webcache.googleusercontent.com'
-                                        )
-                                        and not url.startswith(
-                                            'https://translate.google.com'
-                                        )
+                                        and not any(domain in url.lower() for domain in self.excluded_sites)
                                     ):
                                         result = {'title': title, 'url': url}
-                                        # 检查是否是新的结果
                                         if not self.history_manager.is_url_seen(
                                             keyword, url
                                         ):
-                                            self.logger.info(f'找到新结果: {title}')
+                                            self.logger.info(f'Found new result: {title}')
                                             page_results.append(result)
                             except Exception as e:
-                                self.logger.debug(f'提取结果失败: {str(e)}')
+                                self.logger.debug(f'Failed to extract result: {str(e)}')
                                 continue
                     except Exception as e:
                         self.logger.debug(
-                            f'使用选择器 {selector} 查找元素失败: {str(e)}'
+                            f'Failed to find elements with selector {selector}: {str(e)}'
                         )
                         continue
 
-                # 添加新的未见过的结果
+                # Add new unseen results
                 for result in page_results:
                     if len(all_results) < required_results:
                         all_results.append(result)
                         self.history_manager.add_result(keyword, result)
-                        self.logger.info(f'添加新结果到历史记录: {result["title"]}')
+                        self.logger.info(f'Added new result to history: {result["title"]}')
                     else:
                         break
 
-                self.logger.info(f'当前已找到 {len(all_results)} 个新结果')
+                self.logger.info(f'Currently found {len(all_results)} new results')
                 page += 1
 
-                if not page_results:  # 如果当前页面没有新的结果，退出循环
-                    self.logger.info('当前页面没有新的结果，停止搜索')
+                if not page_results:
+                    self.logger.info('No new results on current page, stopping search')
                     break
 
             if len(all_results) < required_results:
                 self.logger.warning(
-                    f'只找到 {len(all_results)} 个新结果，期望找到 {required_results} 个'
+                    f'Only found {len(all_results)} new results, expected {required_results}'
                 )
 
             return all_results
 
         except TimeoutException:
-            self.logger.error(f'搜索超时: {keyword}')
+            self.logger.error(f'Search timeout for keyword: {keyword}')
             return []
         except Exception as e:
-            self.logger.error(f'搜索过程发生错误: {str(e)}')
+            self.logger.error(f'Error during search process: {str(e)}')
             return []
 
     def save_results(self, keyword, results):
@@ -239,28 +248,47 @@ class InfoMiner:
         os.makedirs(output_dir, exist_ok=True)
 
         date_str = datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-        filename = f"{output_dir}/{date_str}_{keyword.replace(' ', '_')}.json"
+        base_filename = f"{output_dir}/{date_str}_{keyword.replace(' ', '_')}"
 
+        # Save as JSON
+        json_filename = f"{base_filename}.json"
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            with open(json_filename, 'w', encoding='utf-8') as f:
                 json.dump(
                     {'keyword': keyword, 'date': date_str, 'results': results},
                     f,
                     ensure_ascii=False,
                     indent=2,
                 )
-            self.logger.info(f'Results saved to {filename}')
+            self.logger.info(f'Results saved to JSON: {json_filename}')
         except Exception as e:
-            self.logger.error(f'Error saving results to file: {str(e)}')
+            self.logger.error(f'Error saving results to JSON file: {str(e)}')
+
+        # Save as CSV
+        csv_filename = f"{base_filename}.csv"
+        try:
+            with open(csv_filename, 'w', encoding='utf-8', newline='') as f:
+                writer = csv.DictWriter(f, fieldnames=['keyword', 'date', 'title', 'url'])
+                writer.writeheader()
+                for result in results:
+                    writer.writerow({
+                        'keyword': keyword,
+                        'date': date_str,
+                        'title': result['title'],
+                        'url': result['url']
+                    })
+            self.logger.info(f'Results saved to CSV: {csv_filename}')
+        except Exception as e:
+            self.logger.error(f'Error saving results to CSV file: {str(e)}')
 
     def run(self):
         self.logger.info('Starting search process...')
         for keyword in self.config['keywords']:
-            self.logger.info(f'Searching for keyword: {keyword}')
+            self.logger.info(f'Processing keyword: {keyword}')
             results = self.search(keyword)
             self.save_results(keyword, results)
         self.driver.quit()
-        self.logger.info('Search process completed.')
+        self.logger.info('Search process completed successfully.')
 
 
 if __name__ == '__main__':

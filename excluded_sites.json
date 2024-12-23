@@ -1,0 +1,45 @@
+{
+    "translation_sites": [
+        "translate.google.com",
+        "translate.googleusercontent.com",
+        "translate.bing.com",
+        "fanyi.baidu.com",
+        "fanyi.youdao.com",
+        "translate.yandex.com",
+        "deepl.com"
+    ],
+    "encyclopedia_sites": [
+        "wikipedia.org",
+        "baike.baidu.com",
+        "wiki.",
+        "encyclopedia.com",
+        "britannica.com",
+        "wikiwand.com",
+        "wiktionary.org",
+        "baikebaidu.com"
+    ],
+    "dictionary_sites": [
+        "dictionary.cambridge.org",
+        "dictionary.com",
+        "oxfordlearnersdictionaries.com",
+        "merriam-webster.com",
+        "collinsdictionary.com",
+        "macmillandictionary.com",
+        "ldoceonline.com",
+        "vocabulary.com",
+        "dict.cn",
+        "iciba.com",
+        "dict.youdao.com",
+        "dictionary.goo.ne.jp",
+        "weblio.jp",
+        "urbandictionary.com",
+        "thesaurus.com",
+        "lexico.com"
+    ],
+    "other_sites": [
+        "webcache.googleusercontent.com",
+        "baidu.com/item",
+        "zhihu.com/topic",
+        "zhihu.com/wiki"
+    ]
+} 
